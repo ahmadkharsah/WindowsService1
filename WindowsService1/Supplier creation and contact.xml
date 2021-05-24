@@ -1,0 +1,46 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:max="http://www.ibm.com/maximo">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <max:SyncCCINTMXVENDOR creationDateTime="?" baseLanguage="?" transLanguage="?" messageID="?" maximoVersion="?">
+         <max:CCINTMXVENDORSet>
+            <!--Zero or more repetitions:-->
+            <max:COMPANIES action="Add" relationship="?" deleteForInsert="?" transLanguage="EN">
+               <!--Optional:-->
+               <max:ADDRESS1 changed="?">650 Alpha Dr</max:ADDRESS1>
+               <!--Optional:-->
+               <max:ADDRESS2 changed="?">PITTSBURGH</max:ADDRESS2>
+               <!--Optional:-->
+               <max:ADDRESS3 changed="?">PA</max:ADDRESS3>
+               <!--Optional:-->
+               <max:ADDRESS4 changed="?">15238</max:ADDRESS4>
+               <!--Optional:-->
+               <max:COMPANY changed="?">TEST23</max:COMPANY>
+               <!--Optional:-->
+               <max:CURRENCYCODE changed="?">SAR</max:CURRENCYCODE>
+               <!--Optional:-->
+               <max:PAYMENTTERMS changed="?">TEST</max:PAYMENTTERMS>
+               <max:DISABLED changed="?">0</max:DISABLED>
+               <!--Optional:-->
+               <max:HOMEPAGE changed="?">?</max:HOMEPAGE>
+               <!--Optional:-->
+               <max:NAME changed="?" languageEnabled="1">Kraft Electronics</max:NAME>
+               <!--Optional:-->
+               <max:NAME_LONGDESCRIPTION changed="?" languageEnabled="1">Extra description</max:NAME_LONGDESCRIPTION>
+               <!--Optional:-->
+               <max:ORGID changed="?">CAMCO</max:ORGID>
+               <!--Optional:-->
+               <max:TYPE maxvalue="?" changed="?">V</max:TYPE>
+               <!--Zero or more repetitions:-->
+               <max:COMPCONTACT action="Add" relationship="?" deleteForInsert="?">
+                  <!--Optional:-->
+                  <max:CONTACT changed="?">SCHNEIDER\HANS</max:CONTACT>
+                  <!--Optional:-->
+                  <max:EMAIL changed="?">test@test.com</max:EMAIL>
+                  <!--Optional:-->
+                  <max:VOICEPHONE changed="?">4127571212</max:VOICEPHONE>
+               </max:COMPCONTACT>
+            </max:COMPANIES>
+         </max:CCINTMXVENDORSet>
+      </max:SyncCCINTMXVENDOR>
+   </soapenv:Body>
+</soapenv:Envelope>
