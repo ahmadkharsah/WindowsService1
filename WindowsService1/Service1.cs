@@ -8,6 +8,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.ServiceModel;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,12 +25,13 @@ namespace WindowsService1
         string destinationFolderPath = string.Empty;
         DirectoryInfo destinationFolder;
         EventLog eventsLog;
-        MaximoServiceReference.SAGE_CCINTMXSUPPLIERSPortTypeClient serviceClient = new MaximoServiceReference.SAGE_CCINTMXSUPPLIERSPortTypeClient();
+        MaximoServiceReference.SAGE_CCINTMXSUPPLIERSPortTypeClient serviceClient;
 
         public Service1()
         {
             InitializeComponent();
             this.AutoLog = true;
+
             eventsLog = new EventLog();
             if (!EventLog.SourceExists("Service1"))
             {
@@ -37,6 +39,9 @@ namespace WindowsService1
             }
             eventsLog.Source = "Service1";
             eventsLog.Log = "Service1Log";
+
+            //Service Client 
+            serviceClient = new MaximoServiceReference.SAGE_CCINTMXSUPPLIERSPortTypeClient();
 
         }
 
@@ -194,7 +199,7 @@ namespace WindowsService1
                             }
                             else
                             {
-                                serviceClient = new MaximoServiceReference.SAGE_CCINTMXSUPPLIERSPortTypeClient();
+                                serviceClient = new MaximoServiceReference.SAGE_CCINTMXSUPPLIERSPortTypeClient();                                
                                 serviceClient.Open();
                                 serviceClient.SyncCCINTMXVENDOR(new MaximoServiceReference.SyncCCINTMXVENDORType() { 
                                     baseLanguage = baseLanguage,
