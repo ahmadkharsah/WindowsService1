@@ -8,7 +8,11 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +30,8 @@ namespace WindowsService1
         DirectoryInfo destinationFolder;
         EventLog eventsLog;
         MaximoServiceReference.SAGE_CCINTMXSUPPLIERSPortTypeClient serviceClient;
+        BasicHttpsBinding httpsBinding;
+        EndpointAddress endpointAddress;
 
         public Service1()
         {
@@ -41,8 +47,26 @@ namespace WindowsService1
             eventsLog.Log = "Service1Log";
 
             //Service Client 
+            httpsBinding = new BasicHttpsBinding();
+            endpointAddress = new EndpointAddress("https://172.16.67.8/meaweb/services/SAGE_CCINTMXSUPPLIERS");
             serviceClient = new MaximoServiceReference.SAGE_CCINTMXSUPPLIERSPortTypeClient();
+            //Trust all certificates
+            System.Net.ServicePointManager.ServerCertificateValidationCallback =
+                ((sender, certificate, chain, sslPolicyErrors) => true);
 
+            // trust sender
+            System.Net.ServicePointManager.ServerCertificateValidationCallback
+                            = ((sender, cert, chain, errors) => cert.Subject.Contains("*.camco.com.sa"));
+
+            // validate cert by calling a function
+            ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateRemoteCertificate);
+        }
+
+        // callback used to validate the certificate in an SSL conversation
+        private static bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
+        {
+            bool result = cert.Subject.Contains("*.camco.com.sa");
+            return result;
         }
 
         protected override void OnStart(string[] args)
@@ -186,30 +210,42 @@ namespace WindowsService1
                         {
                             if (serviceClient.State != System.ServiceModel.CommunicationState.Faulted)
                             {
-                                serviceClient.SyncCCINTMXVENDOR(new MaximoServiceReference.SyncCCINTMXVENDORType()
+                                using (new OperationContextScope(serviceClient.InnerChannel))
                                 {
-                                    baseLanguage = baseLanguage,
-                                    CCINTMXVENDORSet = list.ToArray(),
-                                    creationDateTime = _creationTime,
-                                    creationDateTimeSpecified = false,
-                                    maximoVersion = maximoVersion,
-                                    messageID = messageID,
-                                    transLanguage = transLanguage
-                                });
+                                    //MessageHeader maxauth = MessageHeader.CreateHeader("MAXAUTH", string.Empty, "bWF4YWRtaW46TGV0c2dvZm9yaXQ=");
+                                    //OperationContext.Current.OutgoingMessageHeaders.Add(maxauth);
+                                    serviceClient.Endpoint.Address.Headers.Append(AddressHeader.CreateAddressHeader("MAXAUTH", string.Empty, "bWF4YWRtaW46TGV0c2dvZm9yaXQ="));
+                                    MaximoServiceReference.SyncCCINTMXVENDORResponseType response = serviceClient.SyncCCINTMXVENDOR(new MaximoServiceReference.SyncCCINTMXVENDORType()
+                                    {
+                                        baseLanguage = baseLanguage,
+                                        CCINTMXVENDORSet = list.ToArray(),
+                                        creationDateTime = _creationTime,
+                                        creationDateTimeSpecified = false,
+                                        maximoVersion = maximoVersion,
+                                        messageID = messageID,
+                                        transLanguage = transLanguage
+                                    });
+                                }
                             }
                             else
                             {
-                                serviceClient = new MaximoServiceReference.SAGE_CCINTMXSUPPLIERSPortTypeClient();                                
-                                serviceClient.Open();
-                                serviceClient.SyncCCINTMXVENDOR(new MaximoServiceReference.SyncCCINTMXVENDORType() { 
-                                    baseLanguage = baseLanguage,
-                                    CCINTMXVENDORSet = list.ToArray(),
-                                    creationDateTime = _creationTime,
-                                    creationDateTimeSpecified = false,
-                                    maximoVersion = maximoVersion,
-                                    messageID = messageID,
-                                    transLanguage = transLanguage
-                                });
+                                serviceClient = new MaximoServiceReference.SAGE_CCINTMXSUPPLIERSPortTypeClient();
+                                using (new OperationContextScope(serviceClient.InnerChannel))
+                                {
+                                    //MessageHeader maxauth = MessageHeader.CreateHeader("MAXAUTH", string.Empty, "bWF4YWRtaW46TGV0c2dvZm9yaXQ=");
+                                    //OperationContext.Current.OutgoingMessageHeaders.Add(maxauth);
+                                    serviceClient.Endpoint.Address.Headers.Append(AddressHeader.CreateAddressHeader("MAXAUTH", string.Empty, "bWF4YWRtaW46TGV0c2dvZm9yaXQ="));
+                                    MaximoServiceReference.SyncCCINTMXVENDORResponseType response = serviceClient.SyncCCINTMXVENDOR(new MaximoServiceReference.SyncCCINTMXVENDORType()
+                                    {
+                                        baseLanguage = baseLanguage,
+                                        CCINTMXVENDORSet = list.ToArray(),
+                                        creationDateTime = _creationTime,
+                                        creationDateTimeSpecified = false,
+                                        maximoVersion = maximoVersion,
+                                        messageID = messageID,
+                                        transLanguage = transLanguage
+                                    });
+                                }
                             }
                             serviceClient.Close();
                         }
